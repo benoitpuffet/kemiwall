@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1769e0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.json">
+<title>KEMIWALL — Calculateur</title>
+<style>
+*{box-sizing:border-box}
+:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+body{margin:0;background:linear-gradient(160deg,#eef4fb,#f7f8fa);color:#17202a;min-height:100vh}
+main{max-width:680px;margin:auto;padding:18px 14px 32px}
+.card{background:#fff;border-radius:24px;padding:20px;box-shadow:0 8px 30px rgba(0,0,0,.09)}
+.header{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.logo{width:48px;height:48px;border-radius:13px;background:#1769e0;color:#fff;display:grid;place-items:center;font-weight:900;font-size:18px}
+h1{margin:0;font-size:26px}
+.sub{margin:4px 0 20px;color:#667085;font-size:14px}
+label.title{display:block;margin:18px 0 8px;font-size:12px;font-weight:800;text-transform:uppercase;color:#667085}
+input,select{width:100%;height:58px;border:2px solid #cfd5dd;border-radius:14px;background:#fff;padding:0 14px;font-size:19px;color:#17202a;outline:none}
+input:focus,select:focus{border-color:#1769e0;box-shadow:0 0 0 3px rgba(23,105,224,.12)}
+button{width:100%;height:60px;border:0;border-radius:14px;background:#1769e0;color:#fff;font-size:18px;font-weight:800;margin-top:20px;cursor:pointer}
+button:active{transform:translateY(1px)}
+.results{margin-top:22px;border-top:1px solid #e4e7ec;padding-top:9px}
+.row{display:flex;justify-content:space-between;gap:15px;padding:10px 0;font-size:16px}
+.total{margin-top:8px;padding:17px;border-radius:14px;background:#eaf6ea;display:flex;justify-content:space-between;font-size:23px;font-weight:900}
+.msg{display:none;margin-top:12px;padding:11px;border-radius:10px;background:#fff1d9;color:#7a4a00;font-size:14px}
+small{display:block;margin-top:13px;color:#667085;line-height:1.4}
+.install{display:none;margin-top:12px;background:#17202a}
+.footer{text-align:center;color:#98a2b3;font-size:12px;margin-top:14px}
+</style>
+</head>
+<body>
+<main><div class="card">
+<div class="header"><div class="logo">KW</div><div><h1>Calculateur KEMIWALL</h1><div class="sub">Devis rapide — plaques 1200 × 620 mm</div></div></div>
+
+<label class="title" for="surface">1. Surface demandée (m²)</label>
+<input id="surface" type="text" inputmode="decimal" placeholder="Ex. 100">
+
+<label class="title" for="thickness">2. Épaisseur</label>
+<select id="thickness">
+<option value="60">60 mm</option><option value="70">70 mm</option><option value="80">80 mm</option>
+<option value="90">90 mm</option><option value="100" selected>100 mm</option><option value="110">110 mm</option>
+<option value="120">120 mm</option><option value="130">130 mm</option><option value="140">140 mm</option>
+<option value="150">150 mm</option><option value="160">160 mm</option><option value="170">170 mm</option>
+<option value="180">180 mm</option><option value="190">190 mm</option><option value="200">200 mm</option>
+</select>
+
+<label class="title" for="price">3. Tarif produit</label>
+<select id="price">
+<option value="77">Franco</option>
+<option value="67.75" selected>&gt;40m3</option>
+<option value="66.5">&gt;70m3</option>
+</select>
+
+<label class="title" for="postal">4. Code postal client</label>
+<input id="postal" type="text" inputmode="numeric" maxlength="4" placeholder="Ex. 4000">
+
+<label class="title" for="carrier">5. Transporteur</label>
+<select id="carrier">
+<option value="0" selected>Michiels</option>
+<option value="1">AAP</option>
+</select>
+
+<button id="go" type="button">CALCULER LE DEVIS</button>
+<button id="install" class="install" type="button">INSTALLER L'APPLICATION</button>
+<div id="msg" class="msg"></div>
+
+<div class="results">
+<div class="row"><span>Volume nécessaire</span><strong id="volume">—</strong></div>
+<div class="row"><span>Prix produit / m²</span><strong id="pm2">—</strong></div>
+<div class="row"><span>Tarif transport / m³</span><strong id="tr">—</strong></div>
+<div class="row"><span>Transport total</span><strong id="trtotal">—</strong></div>
+<div class="total"><span>TOTAL</span><span id="total">—</span></div>
+<div class="row"><span>TOTAL / m²</span><strong id="totalm2">—</strong></div>
+</div>
+<small>Le transport est déterminé par les deux premiers chiffres du code postal (ex. 40 = 4000 à 4099).</small>
+</div><div class="footer">KEMIWALL • Calculateur de prix</div></main>
+
+<script>
+const T={"10":[5.44,5.98],"11":[5.44,5.98],"12":[5.44,5.98],"13":[5.97,6.51],"14":[6.37,6.92],"15":[6.37,6.93],"16":[5.95,6.5],"17":[5.56,6.12],"18":[5.44,5.98],"19":[5.27,5.81],"20":[5.44,5.98],"21":[5.34,5.89],"22":[3.6,4.16],"23":[5.34,5.89],"24":[5.34,5.89],"25":[3.6,4.16],"26":[5.34,5.89],"27":[0,0],"28":[4.89,5.45],"29":[5.34,5.89],"30":[4.89,5.45],"31":[4.89,5.45],"32":[3.6,4.16],"33":[5.34,5.89],"34":[5.44,5.98],"35":[5.56,6.12],"36":[5.37,5.93],"37":[6.37,6.92],"38":[5.97,6.51],"39":[5.56,6.12],"40":[7.46,8.01],"41":[7.74,8.3],"42":[6.14,6.81],"43":[6.26,6.81],"44":[7.62,8.18],"45":[6.84,7.39],"46":[7.03,7.59],"47":[8.02,8.59],"48":[7.45,8.01],"49":[8.2,8.76],"50":[7.84,8.4],"51":[7.95,8.51],"52":[0,0],"53":[7.73,8.29],"54":[0,0],"55":[8.46,8.99],"56":[8.8,9.36],"57":[0,0],"58":[0,0],"59":[0,0],"60":[7.62,8.18],"61":[7.63,8.18],"62":[7.59,8.15],"63":[0,0],"64":[8.87,9.43],"65":[8.55,9.1],"66":[9.75,null],"67":[null,null],"68":[9.75,null],"69":[8.91,9.46],"70":[7.62,8.18],"71":[7.59,8.15],"72":[0,0],"73":[8.04,8.59],"74":[0,0],"75":[9.02,9.58],"76":[8.85,9.41],"77":[8.96,9.52],"78":[7.62,8.18],"79":[8.04,8.59],"80":[7.62,8.18],"81":[0,0],"82":[7.62,8.18],"83":[7.62,8.18],"84":[8.27,8.82],"85":[7.62,8.18],"86":[8.27,8.82],"87":[7.62,8.18],"88":[7.62,8.18],"89":[8.27,8.82],"90":[7.34,7.9],"91":[5.97,6.51],"92":[6.26,6.82],"93":[6.37,6.93],"94":[6.96,7.51],"95":[7.46,8.01],"96":[7.62,8.18],"97":[7.62,8.18],"98":[7.62,8.18],"99":[7.74,8.3]};
+const $=id=>document.getElementById(id);
+function num(v){ return parseFloat(String(v).trim().replace(/\s/g,'').replace(',','.')) || 0; }
+function euro(v){ return Number(v).toLocaleString('fr-BE',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
+
+function calculate(){
+  const surface=num($('surface').value);
+  const thickness=Number($('thickness').value);
+  const price=Number($('price').value);
+  const postal=$('postal').value.replace(/\D/g,'');
+  const carrier=Number($('carrier').value);
+  const msg=$('msg');
+
+  msg.style.display='none';
+  msg.textContent='';
+
+  if(surface<=0){ msg.textContent='Veuillez introduire la surface en m².'; msg.style.display='block'; return; }
+  if(postal.length!==4){ msg.textContent='Veuillez introduire un code postal à 4 chiffres.'; msg.style.display='block'; return; }
+
+  const volume=surface*thickness/1000;
+  const productM2=price*thickness/1000;
+  const zone=Number(postal.substring(0,2));
+  const rates=T[zone];
+  const rate=rates ? rates[carrier] : null;
+
+  $('volume').textContent=volume.toLocaleString('fr-BE',{minimumFractionDigits:2,maximumFractionDigits:2})+' m³';
+  $('pm2').textContent=euro(productM2)+' / m²';
+
+  if(rate===null || rate===undefined){
+    $('tr').textContent='Non disponible';
+    $('trtotal').textContent='—';
+    $('total').textContent='—';
+    $('totalm2').textContent='—';
+    msg.textContent='Aucun tarif de transport disponible pour cette zone / ce transporteur.';
+    msg.style.display='block';
+    return;
+  }
+
+  const transportTotal=volume*rate;
+  const productTotal=surface*productM2;
+  const total=productTotal+transportTotal;
+
+  $('tr').textContent=euro(rate)+' / m³';
+  $('trtotal').textContent=euro(transportTotal);
+  $('total').textContent=euro(total);
+  $('totalm2').textContent=euro(total/surface)+' / m²';
+}
+
+$('go').addEventListener('click',calculate);
+['surface','postal'].forEach(id=>$ (id).addEventListener('keydown',e=>{if(e.key==='Enter')calculate();}));
+
+// PWA installation support
+let deferredPrompt;
+const installBtn = document.getElementById('install');
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  installBtn.style.display = 'block';
+});
+installBtn.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  installBtn.style.display = 'none';
+});
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+}
+</script>
+</body>
+</html>
